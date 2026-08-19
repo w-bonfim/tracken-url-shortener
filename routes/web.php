@@ -11,5 +11,5 @@ Route::get('/', function () {
 });
 
 Route::get('/{code}', RedirectShortUrlController::class)
-    ->where('code', '[A-Za-z0-9]{6}')
+    ->where('code', '[A-Za-z0-9_-]{3,10}')
     ->name('short-urls.redirect');

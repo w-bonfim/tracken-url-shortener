@@ -31,7 +31,10 @@ class ShortUrlController extends Controller
      */
     public function store(StoreShortUrlRequest $request)
     {
-        $shortUrl = $this->shortUrlService->create($request->validated('original_url'));
+        $shortUrl = $this->shortUrlService->create(
+            $request->validated('original_url'),
+            $request->validated('custom_code'),
+        );
 
         return (new ShortUrlResource($shortUrl))
             ->response()

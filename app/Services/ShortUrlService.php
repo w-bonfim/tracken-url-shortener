@@ -9,11 +9,11 @@ class ShortUrlService
 {
     private const CODE_LENGTH = 6;
 
-    public function create(string $originalUrl): ShortUrl
+    public function create(string $originalUrl, ?string $customCode = null): ShortUrl
     {
         return ShortUrl::create([
             'original_url' => $originalUrl,
-            'short_code' => $this->generateUniqueCode(),
+            'short_code' => $customCode ?? $this->generateUniqueCode(),
         ]);
     }
 

@@ -87,6 +87,16 @@ curl -X POST http://localhost:8000/api/short-urls \
 }
 ```
 
+O campo `custom_code` é opcional — se você quiser escolher o código em vez de deixar gerar aleatório (ex: `/carro` em vez de `/aB3xY9`), envie:
+
+```bash
+curl -X POST http://localhost:8000/api/short-urls \
+  -H "Content-Type: application/json" \
+  -d '{"original_url":"https://www.tracken.com.br/carro-esportivo","custom_code":"carro"}'
+```
+
+Regras: 3 a 10 caracteres, apenas letras, números, hífen ou underscore, e não pode repetir um código já existente.
+
 ### Erros
 
 Todas as respostas de erro em `/api/*` seguem o formato:
