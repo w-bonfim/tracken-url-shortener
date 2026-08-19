@@ -112,3 +112,17 @@ php artisan test
 
 Roda em SQLite em memória — não depende do container MySQL estar de pé.
 
+## Documentação interativa (Swagger/OpenAPI)
+
+Com o servidor rodando, acesse:
+
+```
+http://localhost:8000/docs/api
+```
+
+Gerada automaticamente pelo [Scramble](https://scramble.dedoc.co) a partir das rotas, Form Requests e Resources — sem anotações manuais. O JSON puro (OpenAPI 3.1) fica em `/docs/api.json`.
+
+## Nota de segurança
+
+`composer audit` acusa 2 vulnerabilidades conhecidas no `laravel/framework` (versão 11.x): uma envolvendo *signed URLs* e outra a regra de validação `email`. Nenhuma das duas é explorável nesta aplicação — não usamos rotas assinadas nem a regra `email` em nenhum lugar. Não há correção disponível dentro da 11.x (só a partir da 12.60+/13.10+); migrar de major version está fora do escopo desta entrega.
+
