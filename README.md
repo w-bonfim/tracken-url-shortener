@@ -1,66 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tracken URL Shortener
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST em Laravel para encurtamento de URLs: cadastro, edição, remoção, listagem e redirecionamento.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 / Laravel 11
+- MySQL 8 (via Docker Compose)
+- PHPUnit (SQLite em memória para os testes)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Como rodar
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Instalar dependências
 
-## Learning Laravel
+```bash
+composer install
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Configurar o ambiente
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. Subir o banco de dados
 
-## Laravel Sponsors
+```bash
+docker compose up -d
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Isso sobe um MySQL 8 na porta `3306` com as credenciais já configuradas no `.env.example` (`DB_DATABASE=tracken`, `DB_USERNAME=tracken`, `DB_PASSWORD=tracken`).
 
-### Premium Partners
+Se preferir usar um MySQL já instalado na sua máquina em vez do Docker, edite as variáveis `DB_*` no `.env` com suas próprias credenciais — não é preciso mais nada.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 4. Rodar as migrations
 
-## Contributing
+```bash
+php artisan migrate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 5. Subir o servidor
 
-## Code of Conduct
+```bash
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+A API fica disponível em `http://localhost:8000`.
 
-## Security Vulnerabilities
+## Endpoints
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Base: `http://localhost:8000/api`
 
-## License
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/short-urls` | Cria uma URL encurtada |
+| GET | `/short-urls` | Lista todas as URLs cadastradas |
+| GET | `/short-urls/{id}` | Mostra uma URL específica |
+| PUT/PATCH | `/short-urls/{id}` | Atualiza a URL original (o código curto não muda) |
+| DELETE | `/short-urls/{id}` | Remove uma URL |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Fora do prefixo `/api` (é uma rota "de navegador", não retorna JSON):
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/{codigo}` | Redireciona (302) para a URL original |
+
+### Exemplo — criar uma URL
+
+```bash
+curl -X POST http://localhost:8000/api/short-urls \
+  -H "Content-Type: application/json" \
+  -d '{"original_url":"https://www.tracken.com.br/produto/123"}'
+```
+
+```json
+{
+  "data": {
+    "id": 1,
+    "original_url": "https://www.tracken.com.br/produto/123",
+    "short_url": "http://localhost:8000/aB3xY9",
+    "short_code": "aB3xY9",
+    "is_active": true,
+    "created_at": "2026-08-19T12:00:00.000000Z",
+    "updated_at": "2026-08-19T12:00:00.000000Z"
+  }
+}
+```
+
+### Erros
+
+Todas as respostas de erro em `/api/*` seguem o formato:
+
+```json
+{ "message": "Recurso não encontrado." }
+```
+
+Erros de validação (`422`) incluem também o campo `errors`:
+
+```json
+{
+  "message": "Informe uma URL válida (ex: https://meusite.com/produto/123).",
+  "errors": { "original_url": ["Informe uma URL válida (ex: https://meusite.com/produto/123)."] }
+}
+```
+
+## Testes
+
+```bash
+php artisan test
+```
+
+Roda em SQLite em memória — não depende do container MySQL estar de pé.
+
